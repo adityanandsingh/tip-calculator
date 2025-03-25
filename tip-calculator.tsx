@@ -139,7 +139,7 @@ export default function TipCalculator() {
               <span className="font-medium">${tipAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">SubTotal:</span>
+              <span className="text-muted-foreground">Total:</span>
               <span className="font-medium">${totalAmount.toFixed(2)}</span>
             </div>
             {Number.parseInt(numberOfPeople) > 1 && (

@@ -1,11 +1,12 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Button } from "@/components/ui/button"
 
 export default function TipCalculator() {
   const [billAmount, setBillAmount] = useState<string>("")
@@ -14,10 +15,19 @@ export default function TipCalculator() {
   const [totalAmount, setTotalAmount] = useState<number>(0)
   const [numberOfPeople, setNumberOfPeople] = useState<string>("1")
   const [perPersonAmount, setPerPersonAmount] = useState<number>(0)
+  const [error, setError] = useState<string>("")
 
   useEffect(() => {
     if (billAmount) {
       const bill = Number.parseFloat(billAmount)
+
+      if (bill < 0) {
+        setError("Negative values not allowed")
+        return
+      } else {
+        setError("")
+      }
+
       const tip = bill * (Number.parseInt(tipPercentage) / 100)
       const total = bill + tip
       const people = Number.parseInt(numberOfPeople) || 1
@@ -30,13 +40,17 @@ export default function TipCalculator() {
       setTipAmount(0)
       setTotalAmount(0)
       setPerPersonAmount(0)
+      setError("")
     }
   }, [billAmount, tipPercentage, numberOfPeople])
 
-  const handleReset = () => {
-    setBillAmount("")
-    setTipPercentage("15")
-    setNumberOfPeople("1")
+  const handleBillAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBillAmount(e.target.value)
+    if (Number(e.target.value) < 0) {
+      setError("Negative values not allowed")
+    } else {
+      setError("")
+    }
   }
 
   return (
@@ -59,9 +73,10 @@ export default function TipCalculator() {
                 placeholder="0.00"
                 className="pl-8"
                 value={billAmount}
-                onChange={(e) => setBillAmount(e.target.value)}
+                onChange={handleBillAmountChange}
               />
             </div>
+            {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
           </div>
 
           <div className="space-y-2">
@@ -124,7 +139,7 @@ export default function TipCalculator() {
               <span className="font-medium">${tipAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Total Amount:</span>
+              <span className="text-muted-foreground">SubTotal:</span>
               <span className="font-medium">${totalAmount.toFixed(2)}</span>
             </div>
             {Number.parseInt(numberOfPeople) > 1 && (
@@ -135,15 +150,6 @@ export default function TipCalculator() {
             )}
           </div>
         </CardContent>
-        <CardFooter>
-          <Button
-            onClick={handleReset}
-            variant="destructive"
-            className="w-full font-medium flex items-center justify-center gap-2"
-          >
-            Reset Calculator
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   )
